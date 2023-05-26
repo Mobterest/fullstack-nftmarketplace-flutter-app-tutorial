@@ -1,16 +1,26 @@
-# nft_marketplace
+# NFT Marketplace app
 
-A new Flutter project.
+This project combines the power of Flutter, a versatile cross-platform development framework, with Solidity, the programming language of Ethereum smart contracts, to create a robust and efficient NFT marketplace ERC-5643 standards.
 
-## Getting Started
+## Author
 
-This project is a starting point for a Flutter application.
+- [@mobtereststudio](https://www.youtube.com/@mobtereststudio)
 
-A few resources to get you started if this is your first Flutter project:
+## Deployment
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+To deploy this project run
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+  flutter pub get
+  flutter run
+```
+
+# Hi, I'm Joy! 👋
+
+
+## 🔗 Links
+[![linktree](https://img.shields.io/badge/linktree-1de9b6?style=for-the-badge&logo=linktree&logoColor=white)](https://linktr.ee/mobterest)
+
+## Support
+
+For support, email mobterest@gmail.com or join the Slack channel.
