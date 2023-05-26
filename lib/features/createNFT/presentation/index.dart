@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:nft_marketplace/features/createNFT/application/createNftProvider.dart';
 import 'package:nft_marketplace/utils/color.dart';
 import 'package:nft_marketplace/utils/constants.dart';
 import 'package:nft_marketplace/utils/fonts.dart';
+import 'package:nft_marketplace/utils/func.dart';
+import 'package:provider/provider.dart';
 
 class CreateNft extends StatefulWidget {
   const CreateNft({super.key});
@@ -11,11 +16,14 @@ class CreateNft extends StatefulWidget {
   State<CreateNft> createState() => _CreateNftState();
 }
 
-class _CreateNftState extends State<CreateNft> {
+class _CreateNftState extends State<CreateNft> with Func {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  late File imageFile;
+
   @override
   Widget build(BuildContext context) {
+    final exec = context.watch<CreateProvider>();
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -54,7 +62,10 @@ class _CreateNftState extends State<CreateNft> {
               child: Align(
                 alignment: Alignment.center,
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () async {
+                    imageFile = await uploadMagazineCover();
+                    exec.setImageFile(imageFile);
+                  },
                   child: DottedBorder(
                       dashPattern: const [6, 3],
                       borderType: BorderType.RRect,
@@ -63,13 +74,16 @@ class _CreateNftState extends State<CreateNft> {
                       child: ClipRRect(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(12)),
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: 200,
-                            height: MediaQuery.of(context).size.height * 0.3,
-                            color: plainColor,
-                            child: const Text(uploadDescription),
-                          ))),
+                          child: (exec.image == null)
+                              ? Container(
+                                  alignment: Alignment.center,
+                                  width: 200,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.3,
+                                  color: plainColor,
+                                  child: const Text(uploadDescription),
+                                )
+                              : Image.file(imageFile))),
                 ),
               ),
             ),
@@ -78,7 +92,12 @@ class _CreateNftState extends State<CreateNft> {
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: 50,
                 child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      createNft(imageFile, titleController.text,
+                          descriptionController.text, context);
+                      titleController.clear();
+                      descriptionController.clear();
+                    },
                     child: Text(
                       "Create NFT",
                       style: TextStyle(fontFamily: buttonFont, fontSize: 24),

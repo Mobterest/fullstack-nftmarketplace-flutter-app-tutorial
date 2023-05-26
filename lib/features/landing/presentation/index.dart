@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_text/circular_text.dart';
+import 'package:nft_marketplace/features/contract/application/nftProvider.dart';
 import 'package:nft_marketplace/utils/color.dart';
 import 'package:nft_marketplace/utils/constants.dart';
 import 'package:nft_marketplace/utils/fonts.dart';
+import 'package:provider/provider.dart';
 
 class Landing extends StatelessWidget {
   const Landing({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final nft = context.watch<NftProvider>();
     return Scaffold(
       body: SafeArea(
           child: Center(
@@ -72,6 +75,8 @@ class Landing extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
               onPressed: () {
+                nft.addProfile();
+                nft.getSubscriptions();
                 Navigator.pushNamed(context, "/home");
               },
               child: Text(

@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:nft_marketplace/features/article/presentation/index.dart';
+import 'package:nft_marketplace/features/contract/application/nftProvider.dart';
 import 'package:nft_marketplace/features/createArticle/presentation/index.dart';
+import 'package:nft_marketplace/features/createNFT/application/createNftProvider.dart';
 import 'package:nft_marketplace/features/home/presentation/index.dart';
 import 'package:nft_marketplace/features/landing/presentation/index.dart';
 import 'package:nft_marketplace/features/magazine/presentation/index.dart';
 import 'package:nft_marketplace/features/placeOnSale/presentation/index.dart';
 import 'package:nft_marketplace/features/publishArticle/presentation/index.dart';
 import 'package:nft_marketplace/features/subscribe/presentation/index.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => NftProvider()),
+      ChangeNotifierProvider(create: (_) => CreateProvider())
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -25,12 +34,12 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const Landing(),
         '/home': (context) => const Home(),
-        '/subscribe': (context) => const Subscribe(),
-        '/magazine': (context) => const Magazine(),
+        Subscribe.routeName: (context) => const Subscribe(),
+        Magazine.routeName: (context) => const Magazine(),
         '/article': (context) => const Article(),
         '/createArticle': (context) => const CreateArticle(),
         '/publishArticle': (context) => const PublishArticle(),
-        '/placeOnSale': (context) => const PlaceOnSale(),
+        PlaceOnSale.routeName: (context) => const PlaceOnSale(),
       },
       debugShowCheckedModeBanner: false,
     );

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nft_marketplace/features/magazine/domain/magazineArguments.dart';
+import 'package:nft_marketplace/features/placeOnSale/domain/placeOnSaleArguments.dart';
+import 'package:nft_marketplace/features/placeOnSale/presentation/index.dart';
 import 'package:nft_marketplace/utils/color.dart';
 import 'package:nft_marketplace/utils/config.dart';
 import 'package:nft_marketplace/utils/fonts.dart';
@@ -8,6 +11,8 @@ class Magazine extends StatefulWidget {
 
   @override
   State<Magazine> createState() => _MagazineState();
+
+  static const routeName = "/magazine";
 }
 
 class _MagazineState extends State<Magazine> {
@@ -19,50 +24,57 @@ class _MagazineState extends State<Magazine> {
 
   @override
   Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as MagazineArguments;
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: ActionChip(
-                backgroundColor: themeColor,
-                onPressed: () {
-                  Navigator.pushNamed(context, "/createArticle");
-                },
-                label: const Text(
-                  "Create an Article",
-                  style: TextStyle(color: plainColor),
-                )),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: ActionChip(
-                backgroundColor: plainColor,
-                onPressed: () {
-                  Navigator.pushNamed(context, "/placeOnSale");
-                },
-                label: const Text(
-                  "Place on Sale",
-                  style: TextStyle(color: themeColor),
-                )),
-          ),
-        ],
+        actions: (args.source == Source.profileCillectibles)
+            ? []
+            : [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ActionChip(
+                      backgroundColor: themeColor,
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/createArticle");
+                      },
+                      label: const Text(
+                        "Create an Article",
+                        style: TextStyle(color: plainColor),
+                      )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ActionChip(
+                      backgroundColor: plainColor,
+                      onPressed: () {
+                        Navigator.pushNamed(context, PlaceOnSale.routeName,
+                            arguments: PlaceOnSaleArguments(args.tokenId));
+                      },
+                      label: const Text(
+                        "Place on Sale",
+                        style: TextStyle(color: themeColor),
+                      )),
+                ),
+              ],
       ),
       body: SingleChildScrollView(
           child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: ActionChip(
-                backgroundColor: dangerColor,
-                label: const Text("Cancel Subscription",
-                    style: TextStyle(color: plainColor)),
-                onPressed: () {},
-              ),
-            ),
-          ),
+          (args.source == Source.profileCillectibles)
+              ? const SizedBox()
+              : Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: ActionChip(
+                      backgroundColor: dangerColor,
+                      label: const Text("Cancel Subscription",
+                          style: TextStyle(color: plainColor)),
+                      onPressed: () {},
+                    ),
+                  ),
+                ),
           Text(
             "Fashion".toUpperCase(),
             style: TextStyle(
@@ -78,12 +90,14 @@ class _MagazineState extends State<Magazine> {
           Column(children: buildWidgets())
         ],
       )),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        label: const Text('Renew'),
-        icon: const Icon(Icons.thumb_up),
-        backgroundColor: brandColor,
-      ),
+      floatingActionButton: (args.source == Source.profileCillectibles)
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () {},
+              label: const Text('Renew'),
+              icon: const Icon(Icons.thumb_up),
+              backgroundColor: brandColor,
+            ),
     );
   }
 
@@ -120,7 +134,7 @@ class ArticleTopic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
+    return const IntrinsicHeight(
       child: Row(
         children: [
           const VerticalDivider(

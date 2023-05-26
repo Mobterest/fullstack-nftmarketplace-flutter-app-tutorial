@@ -1,5 +1,7 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:empty_widget/empty_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:nft_marketplace/features/contract/application/nftProvider.dart';
 import 'package:nft_marketplace/features/createNFT/presentation/index.dart';
 import 'package:nft_marketplace/features/home/presentation/customSearch.dart';
 import 'package:nft_marketplace/features/nftCard/presentation/index.dart';
@@ -8,6 +10,7 @@ import 'package:nft_marketplace/utils/color.dart';
 import 'package:nft_marketplace/utils/config.dart';
 import 'package:nft_marketplace/utils/constants.dart';
 import 'package:nft_marketplace/utils/fonts.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -21,6 +24,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final nft = context.watch<NftProvider>();
     return Scaffold(
       backgroundColor: plainColor,
       appBar: AppBar(
@@ -52,29 +56,54 @@ class _HomeState extends State<Home> {
                       child: Icon(Icons.wallet),
                     ),
                     RichText(
-                        text: const TextSpan(text: "0.00", children: <TextSpan>[
-                      TextSpan(
-                          text: " ETH",
-                          style: TextStyle(
-                              color: brandColor, fontWeight: FontWeight.bold))
-                    ]))
+                        text: TextSpan(
+                            text: nft.balance.toStringAsFixed(4),
+                            children: const <TextSpan>[
+                          TextSpan(
+                              text: " ETH",
+                              style: TextStyle(
+                                  color: brandColor,
+                                  fontWeight: FontWeight.bold))
+                        ]))
                   ],
                 )),
           )
         ],
       ),
       body: (currentIndex == 0)
-          ? GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: (1 / 1.4),
-                crossAxisCount: 2,
-              ),
-              itemCount: 5,
-              itemBuilder: (BuildContext context, int index) {
-                return const NftCard(
-                  source: Source.home,
-                );
-              })
+          ? (nft.nfts.isNotEmpty)
+              ? GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    childAspectRatio: (1 / 1.4),
+                    crossAxisCount: 2,
+                  ),
+                  itemCount: nft.nfts.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return NftCard(
+                      source: Source.home,
+                      nft: nft.nfts[index],
+                    );
+                  })
+              : Center(
+                  child: Padding(
+                  padding: const EdgeInsets.only(left: 40.0, right: 40.0),
+                  child: EmptyWidget(
+                    image: null,
+                    packageImage: PackageImage.Image_3,
+                    title: 'No Magazine NFTs',
+                    subTitle:
+                        'There are no available Magazine NFTs. \n Be the first to create one!',
+                    titleTextStyle: const TextStyle(
+                      fontSize: 22,
+                      color: Color(0xff9da9c7),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    subtitleTextStyle: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xffabb8d6),
+                    ),
+                  ),
+                ))
           : (currentIndex == 1)
               ? const CreateNft()
               : const Profile(),
@@ -104,6 +133,13 @@ class _HomeState extends State<Home> {
           )
         ],
         onItemSelected: (index) async {
+          if (index == 0) {
+            nft.getSubscriptions();
+          } else if (index == 2) {
+            nft.getMyProfile();
+            nft.getMyNfts();
+            nft.getCollectables();
+          }
           setState(() {
             currentIndex = index;
           });
