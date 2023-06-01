@@ -21,20 +21,29 @@ class NftProvider extends ChangeNotifier {
   ContractFunction? _sellSubscription;
   ContractFunction? _getSubscriptions;
   ContractFunction? _buySubscription;
+  ContractFunction? _renewSubscription;
+  ContractFunction? _expiresAt;
+  ContractFunction? _cancelSubscription;
+  ContractFunction? _likeSubscription;
+  ContractFunction? _unlikeSubsription;
+  ContractFunction? _profiles;
   double _balance = 0.00;
   int profileCount = 0;
   List<dynamic> _myProfile = [];
+  List<dynamic> _userProfile = [];
   List<dynamic> _myNfts = [];
   List<dynamic> _collectables = [];
   List<dynamic> _nfts = [];
+  int _duration = 0;
 
   double get balance => _balance;
   List<dynamic> get myProfile => _myProfile;
+  List<dynamic> get userProfile => _userProfile;
   List<dynamic> get myNfts => _myNfts;
   List<dynamic> get collectables => _collectables;
   List<dynamic> get nfts => _nfts;
 
-  NftProvider() {}
+  NftProvider();
 
   Future<void> init() async {
     _web3client = Web3Client(url, http.Client(), socketConnector: () {
@@ -63,6 +72,12 @@ class NftProvider extends ChangeNotifier {
     _sellSubscription = _deployedContract!.function('sellSubscription');
     _getSubscriptions = _deployedContract!.function('getSubscriptions');
     _buySubscription = _deployedContract!.function('buySubscription');
+    _renewSubscription = _deployedContract!.function('renewSubscription');
+    _expiresAt = _deployedContract!.function('expiresAt');
+    _cancelSubscription = _deployedContract!.function('cancelSubscription');
+    _likeSubscription = _deployedContract!.function('likeSubscription');
+    _unlikeSubsription = _deployedContract!.function('unlikeSubscription');
+    _profiles = _deployedContract!.function('profiles');
   }
 
   Future<void> addProfile() async {
@@ -105,10 +120,10 @@ class NftProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getMyNfts() async {
+  Future<void> getMyNfts(String address) async {
     await init();
     List nftList = await _web3client!.call(
-        sender: EthereumAddress.fromHex(dummyAddress),
+        sender: EthereumAddress.fromHex(address),
         contract: _deployedContract!,
         function: _getMyNfts!,
         params: []);
@@ -116,18 +131,18 @@ class NftProvider extends ChangeNotifier {
     _myNfts = nftList[0];
     _myNfts.removeWhere(
         (item) => item[1] == EthereumAddress.fromHex(genesisAddress));
-    print(_myNfts);
+
     notifyListeners();
   }
 
-  Future<void> getCollectables() async {
+  Future<void> getCollectables(String address) async {
     await init();
     List collectableList = await _web3client!.call(
-        sender: EthereumAddress.fromHex(dummyAddress),
+        sender: EthereumAddress.fromHex(address),
         contract: _deployedContract!,
         function: _getCollectables!,
         params: []);
-    print(collectableList);
+
     _collectables = collectableList[0];
     _collectables.removeWhere(
         (item) => item[1] == EthereumAddress.fromHex(genesisAddress));
@@ -136,10 +151,6 @@ class NftProvider extends ChangeNotifier {
 
   Future<void> createNft(
       String tokenUri, String title, String description) async {
-    print(tokenUri);
-    print(title);
-    print(description);
-
     await init();
     await _web3client!.sendTransaction(
         _creds,
@@ -151,10 +162,10 @@ class NftProvider extends ChangeNotifier {
             function: _createNft!,
             parameters: [tokenUri, title, description]),
         chainId: 1337);
-    getMyNfts();
+    getMyNfts(dummyAddress);
   }
 
-  Future<void> sellSubscription(int tokenId, int price) async {
+  Future<void> sellSubscription(int tokenId, int price, int duration) async {
     await init();
     await _web3client!.sendTransaction(
         _creds,
@@ -163,7 +174,7 @@ class NftProvider extends ChangeNotifier {
             from: EthereumAddress.fromHex(dummyAddress),
             contract: _deployedContract!,
             function: _sellSubscription!,
-            parameters: [BigInt.from(tokenId)]),
+            parameters: [BigInt.from(tokenId), BigInt.from(duration)]),
         chainId: 1337);
   }
 
@@ -176,7 +187,7 @@ class NftProvider extends ChangeNotifier {
     _nfts = nftList[0];
     _nfts.removeWhere(
         (item) => item[1] == EthereumAddress.fromHex(genesisAddress));
-    print(nfts);
+
     notifyListeners();
   }
 
@@ -191,6 +202,102 @@ class NftProvider extends ChangeNotifier {
             function: _buySubscription!,
             parameters: [BigInt.from(tokenId)]),
         chainId: 1337);
-    getCollectables();
+    getCollectables(dummyAddress);
+  }
+
+  Future<void> renewSubscription(int tokenId, int duration) async {
+    await init();
+    await _web3client!.sendTransaction(
+        _creds,
+        Transaction.callContract(
+            nonce: await _web3client!
+                .getTransactionCount(EthereumAddress.fromHex(dummyAddress)),
+            from: EthereumAddress.fromHex(dummyAddress),
+            contract: _deployedContract!,
+            function: _renewSubscription!,
+            parameters: [BigInt.from(tokenId), BigInt.from(duration)]),
+        chainId: 1337);
+    getMyNfts(dummyAddress);
+  }
+
+  Future<int> expiresAt(int tokenId) async {
+    await init();
+    List expiration = await _web3client!.call(
+        contract: _deployedContract!,
+        function: _expiresAt!,
+        params: [BigInt.from(tokenId)]);
+    _duration = expiration[0].toInt();
+    return _duration;
+  }
+
+  Future<void> cancelSubscription(int tokenId) async {
+    await init();
+    await _web3client!.sendTransaction(
+        _creds,
+        Transaction.callContract(
+            nonce: await _web3client!
+                .getTransactionCount(EthereumAddress.fromHex(dummyAddress)),
+            from: EthereumAddress.fromHex(dummyAddress),
+            contract: _deployedContract!,
+            function: _cancelSubscription!,
+            parameters: [BigInt.from(tokenId)]),
+        chainId: 1337);
+    getMyNfts(dummyAddress);
+  }
+
+  Future<void> likeSubscription(int tokenId) async {
+    await init();
+    await _web3client!.sendTransaction(
+        _creds,
+        Transaction.callContract(
+          nonce: await _web3client!
+              .getTransactionCount(EthereumAddress.fromHex(dummyAddress)),
+          from: EthereumAddress.fromHex(dummyAddress),
+          contract: _deployedContract!,
+          function: _likeSubscription!,
+          parameters: [BigInt.from(tokenId)],
+        ),
+        chainId: 1337);
+    getSubscriptions();
+  }
+
+  Future<void> unlikeSubscription(int tokenId) async {
+    await init();
+    await _web3client!.sendTransaction(
+        _creds,
+        Transaction.callContract(
+          nonce: await _web3client!
+              .getTransactionCount(EthereumAddress.fromHex(dummyAddress)),
+          from: EthereumAddress.fromHex(dummyAddress),
+          contract: _deployedContract!,
+          function: _unlikeSubsription!,
+          parameters: [BigInt.from(tokenId)],
+        ),
+        chainId: 1337);
+    getSubscriptions();
+  }
+
+  Future<void> getUserProfile(EthereumAddress user) async {
+    await init();
+    List profileList = await _web3client!.call(
+        contract: _deployedContract!, function: _profileCount!, params: []);
+    BigInt totalProfiles = profileList[0];
+    profileCount = totalProfiles.toInt();
+    List allProfiles = [];
+    for (int i = 1; i < profileCount; i++) {
+      List temp = await _web3client!.call(
+          contract: _deployedContract!,
+          function: _profiles!,
+          params: [BigInt.from(i)]);
+      allProfiles.add(temp);
+    }
+    for (int i = 0; i < allProfiles.length; i++) {
+      if (allProfiles[i][0] == user) {
+        _userProfile = allProfiles[i];
+      }
+    }
+    getMyNfts(_userProfile[0].toString());
+    getCollectables(_userProfile[0].toString());
+    notifyListeners();
   }
 }

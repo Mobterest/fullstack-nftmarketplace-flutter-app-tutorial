@@ -39,18 +39,22 @@ mixin Func {
 
     final response =
         await httpService.request(endpoint: pinEndpoint, formData: formData);
-    print(response);
-    print(pinataGateway + response['IpfsHash']);
     return pinataGateway + response['IpfsHash'];
   }
 
-  sellSubscription(int tokenId, int price, BuildContext context) async {
+  sellSubscription(
+      int tokenId, int price, int duration, BuildContext context) async {
     NftProvider nftProvider = NftProvider();
-    await nftProvider.sellSubscription(tokenId, price);
+    await nftProvider.sellSubscription(tokenId, price, duration);
   }
 
   buySubscription(int tokenId, BigInt price, BuildContext context) async {
     NftProvider nftProvider = NftProvider();
     nftProvider.buySubscription(tokenId, price);
+  }
+
+  renewSubscription(int tokenId, int duration, BuildContext context) async {
+    NftProvider nftProvider = NftProvider();
+    nftProvider.renewSubscription(tokenId, duration);
   }
 }

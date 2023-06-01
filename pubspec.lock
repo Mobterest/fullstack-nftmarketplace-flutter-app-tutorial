@@ -288,6 +288,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.3"
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      sha256: "3bc132a9dbce73a7e4a21a17d06e1878839ffbf975568bc875c60537824b0c4d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.18.1"
   js:
     dependency: transitive
     description:
@@ -472,6 +480,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  select_card:
+    dependency: "direct main"
+    description:
+      name: select_card
+      sha256: "951a25bfd8ef43b63524499e97fccb891a69382c9dfe10804f8f87922d3a4627"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.9"
   shared_preferences:
     dependency: transitive
     description:

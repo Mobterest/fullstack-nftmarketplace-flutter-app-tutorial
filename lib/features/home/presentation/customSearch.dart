@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:nft_marketplace/features/subscribe/domain/subscribeArguments.dart';
+import 'package:nft_marketplace/features/subscribe/presentation/index.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
-  List<String> searchTerms = ["Fashion", "Sports", "Women"];
-
+  List<dynamic> searchTerms = [];
+  CustomSearchDelegate(List<dynamic> s) {
+    searchTerms = s;
+  }
+  
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -27,19 +32,24 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    List<String> matchQuery = [];
+    List<dynamic> matchQuery = [];
     for (var mag in searchTerms) {
-      if (mag.toLowerCase().contains(query.toLowerCase())) {
+      if (mag[6].toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(mag);
       }
     }
     return ListView.builder(
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
-        var result = matchQuery[index];
+        var result = matchQuery[index][6];
+        List<dynamic> nft = matchQuery[index];
         return ListTile(
           onTap: () {
-            Navigator.pushNamed(context, "/subscribe");
+            Navigator.pushNamed(
+              context,
+              Subscribe.routeName,
+              arguments: SubscribeArguments(nft),
+            );
           },
           title: Text(result),
         );
@@ -49,19 +59,24 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<String> matchQuery = [];
+    List<dynamic> matchQuery = [];
     for (var mag in searchTerms) {
-      if (mag.toLowerCase().contains(query.toLowerCase())) {
+      if (mag[6].toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(mag);
       }
     }
     return ListView.builder(
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
-        var result = matchQuery[index];
+        var result = matchQuery[index][6];
+        List<dynamic> nft = matchQuery[index];
         return ListTile(
           onTap: () {
-            Navigator.pushNamed(context, "/subscribe");
+            Navigator.pushNamed(
+              context,
+              Subscribe.routeName,
+              arguments: SubscribeArguments(nft),
+            );
           },
           title: Text(result),
         );

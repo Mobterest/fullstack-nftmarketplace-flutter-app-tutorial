@@ -8,7 +8,10 @@ This project combines the power of Flutter, a versatile cross-platform developme
 
 ## Deployment
 
-To deploy this project run
+To deploy this project:
+1. Update the config.dart file in lib/utils/config.dart and replace <ENTER HERE> with the respective data.
+
+2. Then Run
 
 ```bash
   flutter pub get

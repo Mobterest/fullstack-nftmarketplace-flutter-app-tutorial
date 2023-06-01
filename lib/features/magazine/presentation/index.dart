@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:nft_marketplace/features/contract/application/nftProvider.dart';
 import 'package:nft_marketplace/features/magazine/domain/magazineArguments.dart';
 import 'package:nft_marketplace/features/placeOnSale/domain/placeOnSaleArguments.dart';
 import 'package:nft_marketplace/features/placeOnSale/presentation/index.dart';
+import 'package:nft_marketplace/features/renewSubscription/domain/renewArguments.dart';
+import 'package:nft_marketplace/features/renewSubscription/presentation/index.dart';
 import 'package:nft_marketplace/utils/color.dart';
 import 'package:nft_marketplace/utils/config.dart';
 import 'package:nft_marketplace/utils/fonts.dart';
+import 'package:provider/provider.dart';
 
 class Magazine extends StatefulWidget {
   const Magazine({super.key});
@@ -26,6 +31,7 @@ class _MagazineState extends State<Magazine> {
   Widget build(BuildContext context) {
     final args =
         ModalRoute.of(context)!.settings.arguments as MagazineArguments;
+    final nft = context.watch<NftProvider>();
     return Scaffold(
       appBar: AppBar(
         actions: (args.source == Source.profileCillectibles)
@@ -71,7 +77,10 @@ class _MagazineState extends State<Magazine> {
                       backgroundColor: dangerColor,
                       label: const Text("Cancel Subscription",
                           style: TextStyle(color: plainColor)),
-                      onPressed: () {},
+                      onPressed: () {
+                        nft.cancelSubscription(args.tokenId);
+                        Navigator.pushNamed(context, "/home");
+                      },
                     ),
                   ),
                 ),
@@ -87,13 +96,25 @@ class _MagazineState extends State<Magazine> {
               color: brandColor,
             ),
           ),
+          FutureBuilder<int>(
+              future: nft.expiresAt(args.tokenId),
+              builder: (BuildContext context, snapshot) {
+                if (snapshot.hasData) {
+                  String days = NumberFormat('#,##,000').format(snapshot.data!);
+                  return Text('Expires after: $days' " days");
+                }
+                return const SizedBox();
+              }),
           Column(children: buildWidgets())
         ],
       )),
       floatingActionButton: (args.source == Source.profileCillectibles)
           ? null
           : FloatingActionButton.extended(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, RenewSubscription.routeName,
+                    arguments: RenewArguments(args.tokenId));
+              },
               label: const Text('Renew'),
               icon: const Icon(Icons.thumb_up),
               backgroundColor: brandColor,

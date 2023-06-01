@@ -15,6 +15,8 @@ class PlaceOnSale extends StatefulWidget {
 
 class _PlaceOnSaleState extends State<PlaceOnSale> with Func {
   final TextEditingController priceController = TextEditingController();
+  final List<String> list = ["1 week", "1 month", "3 months"];
+  String? dropdownValue;
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +42,14 @@ class _PlaceOnSaleState extends State<PlaceOnSale> with Func {
                   fontWeight: FontWeight.w700,
                   fontSize: 16),
             ),
-            TextField(
-                controller: priceController,
-                decoration: const InputDecoration(
-                  suffixText: ' ETH',
-                )),
+            Padding(
+              padding: const EdgeInsets.only(top: 15.0),
+              child: TextField(
+                  controller: priceController,
+                  decoration: const InputDecoration(
+                    suffixText: ' ETH',
+                  )),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
@@ -55,15 +60,47 @@ class _PlaceOnSaleState extends State<PlaceOnSale> with Func {
                     fontSize: 16),
               ),
             ),
-            const TextField(),
+            DropdownButton<String>(
+              isExpanded: true,
+              value: dropdownValue,
+              icon: const Icon(Icons.arrow_downward),
+              elevation: 16,
+              style: const TextStyle(color: darkColor),
+              underline: Container(
+                height: 2,
+                color: brandColor,
+              ),
+              onChanged: (String? value) {
+                setState(() {
+                  dropdownValue = value!;
+                });
+              },
+              items: list.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
             Container(
                 margin: const EdgeInsets.all(40),
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: 50,
                 child: ElevatedButton(
                     onPressed: () {
-                      sellSubscription(args.tokenId,
-                          int.parse(priceController.text), context);
+                      Duration daysToSeconds = Duration(
+                          days: (dropdownValue == "1 week")
+                              ? 7
+                              : (dropdownValue == "1 month")
+                                  ? 28
+                                  : 84);
+
+                      sellSubscription(
+                          args.tokenId,
+                          int.parse(priceController.text),
+                          daysToSeconds.inDays,
+                          context);
+                      Navigator.pushNamed(context, "/home");
                     },
                     child: Text(
                       "Sell",

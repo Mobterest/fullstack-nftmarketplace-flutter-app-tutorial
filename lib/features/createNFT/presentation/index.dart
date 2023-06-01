@@ -97,6 +97,7 @@ class _CreateNftState extends State<CreateNft> with Func {
                           descriptionController.text, context);
                       titleController.clear();
                       descriptionController.clear();
+                      Navigator.pushNamed(context, "/home");
                     },
                     child: Text(
                       "Create NFT",

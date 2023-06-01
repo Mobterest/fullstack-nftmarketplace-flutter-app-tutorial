@@ -5,6 +5,7 @@ import 'package:nft_marketplace/features/contract/application/nftProvider.dart';
 import 'package:nft_marketplace/features/createNFT/presentation/index.dart';
 import 'package:nft_marketplace/features/home/presentation/customSearch.dart';
 import 'package:nft_marketplace/features/nftCard/presentation/index.dart';
+import 'package:nft_marketplace/features/profile/application/profileProvider.dart';
 import 'package:nft_marketplace/features/profile/presentation/index.dart';
 import 'package:nft_marketplace/utils/color.dart';
 import 'package:nft_marketplace/utils/config.dart';
@@ -25,6 +26,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final nft = context.watch<NftProvider>();
+    final status = context.watch<ProfileProvider>();
     return Scaffold(
       backgroundColor: plainColor,
       appBar: AppBar(
@@ -40,7 +42,8 @@ class _HomeState extends State<Home> {
               ? IconButton(
                   onPressed: () {
                     showSearch(
-                        context: context, delegate: CustomSearchDelegate());
+                        context: context,
+                        delegate: CustomSearchDelegate(nft.nfts));
                   },
                   icon: const Icon(Icons.search))
               : const SizedBox(),
@@ -136,9 +139,10 @@ class _HomeState extends State<Home> {
           if (index == 0) {
             nft.getSubscriptions();
           } else if (index == 2) {
+            status.setProfile(true);
             nft.getMyProfile();
-            nft.getMyNfts();
-            nft.getCollectables();
+            nft.getMyNfts(dummyAddress);
+            nft.getCollectables(dummyAddress);
           }
           setState(() {
             currentIndex = index;

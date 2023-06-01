@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nft_marketplace/features/magazine/domain/magazineArguments.dart';
 import 'package:nft_marketplace/features/magazine/presentation/index.dart';
+import 'package:nft_marketplace/features/profile/application/profileProvider.dart';
 import 'package:nft_marketplace/features/subscribe/domain/subscribeArguments.dart';
 import 'package:nft_marketplace/features/subscribe/presentation/index.dart';
 import 'package:nft_marketplace/utils/color.dart';
 import 'package:nft_marketplace/utils/config.dart';
+import 'package:provider/provider.dart';
 
 class NftCard extends StatefulWidget {
   final Enum source;
@@ -18,13 +20,17 @@ class NftCard extends StatefulWidget {
 class _NftCardState extends State<NftCard> {
   @override
   Widget build(BuildContext context) {
+    final status = context.watch<ProfileProvider>();
     return GestureDetector(
       onTap: () {
         (widget.source == Source.home)
             ? Navigator.pushNamed(context, Subscribe.routeName,
                 arguments: SubscribeArguments(widget.nft))
-            : Navigator.pushNamed(context, Magazine.routeName,
-                arguments: MagazineArguments(widget.nft[0].toInt(), widget.source));
+            : (status.profileStatus)
+                ? Navigator.pushNamed(context, Magazine.routeName,
+                    arguments:
+                        MagazineArguments(widget.nft[0].toInt(), widget.source))
+                : null;
       },
       child: Card(
         elevation: 3.0,
